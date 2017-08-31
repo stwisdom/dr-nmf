@@ -1,8 +1,9 @@
-Implementation of deep recurrent nonnegative matrix factorization (DR-NMF) for speech separation
+## Implementation of deep recurrent nonnegative matrix factorization (DR-NMF) for speech separation
+
+### Instructions:
 
 Uses the [task 2 data from the 2nd CHiME Challenge](http://spandh.dcs.shef.ac.uk/chime_challenge/chime2013/chime2_task2.html). 
 
-Instructions:
 1) Download required toolboxes by running `download_toolboxes.sh`.
 2) Generate taskfiles by replacing the variable `chime2_path` in `create_taskfiles.sh` by your local CHiME2 path and running `create_taskfiles.sh`.
 3) Use `enhance.py` to train, reconstruct, and score audio.
