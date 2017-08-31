@@ -7,7 +7,7 @@ chime2_path='/data1/swisdom/chime2/chime2-wsj0'
 find ${chime2_path}/isolated/si_tr_s -name '*.wav' -type f | sort -u > taskfile_chime2_train_noisy.txt
 find ${chime2_path}/scaled/si_tr_s -name '*.wav' -type f | sort -u > taskfile_chime2_train_clean.txt
 
-# write taskfiles for development (validaiton) data
+# write taskfiles for development (validation) data
 find ${chime2_path}/isolated/si_dt_05 -name '*.wav' -type f | sort -u > taskfile_chime2_valid_noisy.txt
 find ${chime2_path}/scaled/si_dt_05 -name '*.wav' -type f | sort -u > taskfile_chime2_valid_clean.txt
 
