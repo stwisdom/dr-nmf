@@ -4,15 +4,57 @@ import numpy as np
 from keras import backend as K
 from keras import activations, initializers, regularizers
 from keras.engine import Layer, InputSpec
-from keras.layers import Recurrent
+from keras.layers import Dense, Recurrent
+from keras.layers.merge import _Merge
 from keras.engine.topology import Layer
 
 import theano
 import theano.tensor as T
 
-from fftconv import cufft, cuifft  
 
-#import models
+class DenseNonNegW(Dense):
+    """Equivalent to a Dense layer with a differential elementwise 
+       nonnegative constraint on the kernel by using K.exp(kernel)
+       during forward pass.
+       Thus, to initialize the kernel to a known nonnegative matrix
+       A, the kernel should be initialized with log(eps + A), where
+       eps is a small value like 1e-7 to prevent NaNs.
+    """
+    def call(self, inputs):
+        output = K.dot(inputs, K.exp(self.kernel))
+        if self.use_bias:
+            output = K.bias_add(output, self.bias)
+        if self.activation is not None:
+            output = self.activation(output)
+        return output 
+
+
+
+class DivideAbyAplusB(_Merge):
+    """Layer that divides (element-wise) the first input by the 
+    elementwise sum of the first input and second input.
+    It takes as input a list of tensors of len 2, all of the 
+    same shape, and returns a single tensor (also of the same 
+    shape).
+    """
+
+    def _merge_function(self, inputs):
+        A = inputs[0]
+        B = inputs[1]
+        output = K.exp( K.log(1e-7 + A) - K.log(1e-7 + A + B) )
+        return output
+
+
+def divide_A_by_AplusB(inputs, **kwargs):
+    """Functional interface to the `DivideAbyAplusB` layer.
+    # Arguments
+        inputs: A list of input tensors (length exactly 2).
+        **kwargs: Standard layer keyword arguments.
+    # Returns
+        A tensor, equal to A/(A+B).
+    """
+    return DivideAbyAplusB(**kwargs)(inputs)
+
 
 def _time_distributed_dense(x, w, b=None, dropout=None,
                             input_dim=None, output_dim=None,
@@ -57,24 +99,6 @@ def _time_distributed_dense(x, w, b=None, dropout=None,
     else:
         x = K.reshape(x, (-1, timesteps, output_dim))
     return x
-
-
-def do_fft(input, n_hidden):
-    fft_input = K.reshape(input, (input.shape[0], 2, n_hidden))
-    fft_input = fft_input.dimshuffle(0,2,1)
-    fft_output = cufft(fft_input) / K.sqrt(n_hidden)
-    fft_output = fft_output.dimshuffle(0,2,1)
-    output = K.reshape(fft_output, (input.shape[0], 2*n_hidden))
-    return output
-
-
-def do_ifft(input, n_hidden):
-    ifft_input = K.reshape(input, (input.shape[0], 2, n_hidden))
-    ifft_input = ifft_input.dimshuffle(0,2,1)
-    ifft_output = cuifft(ifft_input) / K.sqrt(n_hidden)
-    ifft_output = ifft_output.dimshuffle(0,2,1)
-    output = K.reshape(ifft_output, (input.shape[0], 2*n_hidden))
-    return output
 
 
 class SimpleDeepRNN(Recurrent):

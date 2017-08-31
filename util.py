@@ -15,6 +15,17 @@ import six
 import librosa.util as util
 import scipy.fftpack as fft
 
+
+def masked_seqs_to_frames(x, mask):
+    (n_examples, time_steps, n_feature) = x.shape
+    x=x.transpose((2,0,1)) #shape (n_feature,n_examples,time_steps)
+    x_reshape = np.reshape(x, (n_feature, n_examples*time_steps))
+    mask = mask.transpose((2,0,1)) #shape (1,n_examples,time_steps)
+    mask_reshape = np.reshape(mask, (n_examples*time_steps,))
+    idx_of_mask = np.where(mask_reshape==mask_reshape[0])[0]
+    x_reshape = x_reshape[:, idx_of_mask]
+    return x_reshape
+
 def wavread(wavfile):
     if isinstance(wavfile,list):
         wavfile=wavfile[0]

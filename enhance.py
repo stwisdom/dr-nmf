@@ -14,74 +14,16 @@ import re
 import theano
 from keras.models import Model, Sequential
 from keras.layers import Dense, Activation, LSTM, TimeDistributed, Masking, multiply, add, Lambda
-from keras.layers.merge import _Merge
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.constraints import Constraint
 import keras.backend as K
 from custom_callbacks import LossHistory
-from custom_layers import SimpleDeepRNN
+from custom_layers import SimpleDeepRNN, DenseNonNegW, divide_A_by_AplusB
 
-import util
+from util import masked_seqs_to_frames
 from snmf import sparse_nmf_matlab
 from audio_dataset import AudioDataset, load_data
-
-
-
-class DenseNonNegW(Dense):
-    """Equivalent to a Dense layer with a differential elementwise 
-       nonnegative constraint on the kernel by using K.exp(kernel)
-       during forward pass.
-       Thus, to initialize the kernel to a known nonnegative matrix
-       A, the kernel should be initialized with log(eps + A), where
-       eps is a small value like 1e-7 to prevent NaNs.
-    """
-    def call(self, inputs):
-        output = K.dot(inputs, K.exp(self.kernel))
-        if self.use_bias:
-            output = K.bias_add(output, self.bias)
-        if self.activation is not None:
-            output = self.activation(output)
-        return output 
-
-
-
-class DivideAbyAplusB(_Merge):
-    """Layer that divides (element-wise) the first input by the 
-    elementwise sum of the first input and second input.
-    It takes as input a list of tensors of len 2, all of the 
-    same shape, and returns a single tensor (also of the same 
-    shape).
-    """
-
-    def _merge_function(self, inputs):
-        A = inputs[0]
-        B = inputs[1]
-        output = K.exp( K.log(1e-7 + A) - K.log(1e-7 + A + B) )
-        return output
-
-def divide_A_by_AplusB(inputs, **kwargs):
-    """Functional interface to the `DivideAbyAplusB` layer.
-    # Arguments
-        inputs: A list of input tensors (length exactly 2).
-        **kwargs: Standard layer keyword arguments.
-    # Returns
-        A tensor, equal to A/(A+B).
-    """
-    return DivideAbyAplusB(**kwargs)(inputs)
-
-
-
-def masked_seqs_to_frames(x, mask):
-    (n_examples, time_steps, n_feature) = x.shape
-    x=x.transpose((2,0,1)) #shape (n_feature,n_examples,time_steps)
-    x_reshape = np.reshape(x, (n_feature, n_examples*time_steps))
-    mask = mask.transpose((2,0,1)) #shape (1,n_examples,time_steps)
-    mask_reshape = np.reshape(mask, (n_examples*time_steps,))
-    idx_of_mask = np.where(mask_reshape==mask_reshape[0])[0]
-    x_reshape = x_reshape[:, idx_of_mask]
-    return x_reshape
-
 
 
 def load_snmf(savefile_W_pickle, savefile_W_hickle, save_H=True):
@@ -445,6 +387,7 @@ def kl_div(x, y):
     log_y = np.log(1e-9 + y)
     return x*log_x - x*log_y - x + y
 
+
 def beta_div(x, y, beta):
     if beta==1.:
         return kl_div(x, y)
@@ -669,8 +612,8 @@ def main(argv):
 
             config['params_unfolded_snmf']= {'K_layers': 2,
                                              'loss' : 'mse_of_masked',
-                                             #'epochs': 1200,
-                                             'epochs': 0,
+                                             'epochs': 1200,
+                                             #'epochs': 0,
                                              'batch_size': 32,
                                              'learning_rate': 1e-3,
                                              'clipnorm': 0.,
