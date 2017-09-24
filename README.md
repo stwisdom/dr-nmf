@@ -1,5 +1,10 @@
 ## Implementation of deep recurrent nonnegative matrix factorization (DR-NMF) for speech separation
 
+DR-NMF is a recurrent neural network constructed from the unfolded iterations of the iterative soft-thresholding algorithm (ISTA) applied to sparse NMF inference. Sparse NMF inference is the task of inferring the nonnegative sparse coefficients H given a nonnegative dictionary W such that WH approximates a nonnegative observation matrix X. For speech separation, the observation matrix X is the raw spectrogram of noisy audio, and the dictionary W is partitioned into speech and noise components. This partitioning of the dictionary W allows computation of an enhancement mask in the STFT domain.
+
+Read the paper here:
+https://arxiv.org/abs/1709.07124
+
 ### Instructions:
 
 Uses the [task 2 data from the 2nd CHiME Challenge](http://spandh.dcs.shef.ac.uk/chime_challenge/chime2013/chime2_task2.html). 
