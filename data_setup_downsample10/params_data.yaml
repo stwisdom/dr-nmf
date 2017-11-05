@@ -1,0 +1,14 @@
+datafile_test: chime2_si_et_05.hdf5
+datafile_train: chime2_si_tr_s_ds1.hdf5
+datafile_valid: chime2_si_dt_05.hdf5
+downsample: 10
+maxlen: 500
+params_stft: {N: 512, hop: 128, nch: 1}
+taskfile_x_test: taskfile_chime2_test_noisy.txt
+taskfile_x_train: taskfile_chime2_train_noisy.txt
+taskfile_x_valid: taskfile_chime2_valid_noisy.txt
+taskfile_y_test: taskfile_chime2_test_clean.txt
+taskfile_y_train: taskfile_chime2_train_clean.txt
+taskfile_y_valid: taskfile_chime2_valid_clean.txt
+transform_x: mag
+transform_y: mag

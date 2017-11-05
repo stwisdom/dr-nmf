@@ -1,0 +1,13 @@
+K_layers: 5
+alph: 50.0
+batch_size: 32
+clipnorm: 0.0
+epochs: 1200
+lam1: 1.0
+learning_rate: 0.001
+loss: mse_of_masked
+optimizer: adam
+params_trainable: [log_D, log_alph]
+params_untied: [log_D, log_alph]
+patience: 50
+r: 100

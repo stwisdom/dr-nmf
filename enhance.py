@@ -688,7 +688,9 @@ def main(argv):
     del params_data_to_hash['datafile_valid']
     del params_data_to_hash['datafile_test']
     hash_params_data = hashlib.md5(json.dumps(params_data_to_hash, sort_keys=True)).hexdigest()
-    folder_exp = 'data_setup_%s' % hash_params_data
+    #folder_exp = 'data_setup_%s' % hash_params_data
+    # just use the amount of training data to identity the data setup
+    folder_exp = 'data_setup_downsample%d' % params_data['downsample']
     if not os.path.exists(folder_exp):
         os.makedirs(folder_exp)
     # write the data configuration to a YAML file to remember it
