@@ -13,7 +13,7 @@ Uses the [task 2 data from the 2nd CHiME Challenge](http://spandh.dcs.shef.ac.uk
 
 1) Download required toolboxes by running `download_toolboxes.sh`.
 2) Generate taskfiles by replacing the variable `chime2_path` in `create_taskfiles.sh` by your local CHiME2 path and running `create_taskfiles.sh`.
-3) Use `enhance.py` to train, reconstruct, and score audio.
+3) Use `enhance.py` to train, reconstruct, and score audio. Use the `run_waspaa2017.sh` script to replicate results from the WASPAA 2017 paper.
 
 Uses code from the following sources, which are automatically downloaded and unzipped by `download_toolboxes.sh`:
 - sparseNMF by Jonathan Le Roux from http://www.jonathanleroux.org/software/sparseNMF.zip (put Matlab files in "sparseNMF" directory)
