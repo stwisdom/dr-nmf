@@ -491,6 +491,7 @@ def main(argv):
     config={}
 
     if not (configfile_data == ''):
+        print "Loaded data configuration from %s." % configfile_data
         config['params_data'] = config_data_loaded
     else:
         config['params_data'] = {}
@@ -521,6 +522,8 @@ def main(argv):
         config['params_data']['datafile_valid']='chime2_si_dt_05.hdf5'
         config['params_data']['datafile_test'] ='chime2_si_et_05.hdf5'
 
+    print "Data configuration:"
+    pprint(config['params_data'])
 
     params_loaded = None
     if not (configfile==''):

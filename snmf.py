@@ -96,8 +96,7 @@ def sparse_nmf_matlab_on_chunk(V, params, verbose=True, useGPU=True, gpuIndex=1)
     # run the Matlab script that uses hard-coded .mat files as input, and returns
     # results in sparse_nmf_output.mat
 
-    #cmd_matlab = "/usr/local/MATLAB/R2016a/bin/matlab -c /usr/local/MATLAB/R2016a/licenses/license_turbine_1094417_R2016a.lic -nosplash -nodesktop -nodisplay -r \"addpath('sparseNMF'); sparse_nmf_exec(); quit();\""
-    cmd_matlab = "/usr/local/MATLAB/R2017a/bin/matlab -nosplash -nodesktop -nodisplay -r \"addpath('sparseNMF'); useGPU=%d; gpuIndex=%d; sparse_nmf_exec(); quit();\"" % (useGPU, gpuIndex)
+    cmd_matlab = "matlab -nosplash -nodesktop -nodisplay -r \"addpath('sparseNMF'); useGPU=%d; gpuIndex=%d; sparse_nmf_exec(); quit();\"" % (useGPU, gpuIndex)
     if not verbose:
         cmd_matlab = cmd_matlab + " > /dev/null"
     

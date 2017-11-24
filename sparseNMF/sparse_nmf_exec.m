@@ -11,8 +11,11 @@ end
 
 if useGPU
     gpuDevice(gpuIndex);
+    [W,H,objective]=sparse_nmf_gpu(V,params, useGPU);
+else
+    [W,H,objective]=sparse_nmf(V,params);
 end
-[W,H,objective]=sparse_nmf(V,params,useGPU);
+
 
 cost=objective.cost;
 div=objective.div;

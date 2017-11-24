@@ -1,5 +1,5 @@
 datafile_test: chime2_si_et_05.hdf5
-datafile_train: chime2_si_tr_s_ds1.hdf5
+datafile_train: chime2_si_tr_s_ds10.hdf5
 datafile_valid: chime2_si_dt_05.hdf5
 downsample: 10
 maxlen: 500
