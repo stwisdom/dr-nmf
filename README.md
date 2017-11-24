@@ -9,7 +9,7 @@ Read the paper here: https://arxiv.org/abs/1709.07124
 
 ### Instructions:
 
-Uses the [task 2 data from the 2nd CHiME Challenge](http://spandh.dcs.shef.ac.uk/chime_challenge/chime2013/chime2_task2.html). 
+Uses the [task 2 data from the 2nd CHiME Challenge](http://spandh.dcs.shef.ac.uk/chime_challenge/chime2013/chime2_task2.html), which is available from the [LDC (free for members, $50 for non-members)](https://catalog.ldc.upenn.edu/LDC2017S10).
 
 1) Download required toolboxes by running `download_toolboxes.sh`.
 2) Generate taskfiles by replacing the variable `chime2_path` in `create_taskfiles.sh` by your local CHiME2 path and running `create_taskfiles.sh`.
