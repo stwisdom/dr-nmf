@@ -333,7 +333,7 @@ class SimpleDeepRNN(Recurrent):
 
     # override Recurrent's get_initial_states function to load the trainable
     # initial hidden state
-    def get_initial_states(self, x):
+    def get_initial_state(self, x):
             initial_state = K.expand_dims(self.h0, 0) # (1, output_dim)
             initial_state = K.tile(initial_state, [x.shape[0], 1])  # (samples, output_dim)
             #initial_states = [initial_state for _ in range(len(self.states))]

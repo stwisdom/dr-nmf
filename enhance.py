@@ -940,49 +940,67 @@ def main(argv):
         train_data_loaded = False
         valid_data_loaded = False
 
-        # load the training data if we need to train SNMF
-        #-------------------
-        # save off the SNMF parameters
-        hash_params_snmf = hashlib.md5(json.dumps(params_snmf, sort_keys=True)).hexdigest()
-        paramsfile_snmf = folder_exp + ("/configs/params_snmf_%s.yaml" % hash_params_snmf)
-        with open(paramsfile_snmf, 'wb') as f:
-            yaml.dump(params_snmf, f)
-        print("paramsfile for SNMF is %s" % paramsfile_snmf)
-
-        # get the name of the savefile for SNMF
-        savefile_W_hickle = get_snmf_savefile(params_snmf, path_dicts=path_dicts)
-        if os.path.exists(savefile_W_hickle) and (not flag_recompute):
-            # the savefile exists and we're not recomputing, so assign
-            # dummy values for the training data so we don't take up
-            # a lot of memory
-            y_train_frames = None
-            x_train_frames = None
-            train_data_loaded = False
+        if 'weight_initialization' in config['params_unfolded_snmf']:
+            weight_initialization = config['params_unfolded_snmf']['weight_initialization']
         else:
-            # the savefile doesn't exist or we're recomputing, so load up 
-            # the training data tensors
-            x_train, y_train, mask_train = load_data_tensors(params_data, datafile_train, 'train', params_data['maxlen'], downsample=params_data['downsample'])
+            weight_initialization = 'snmf'
 
-            # convert the masked sequence tensors to matrices of shape (n_freq, n_frames)
-            x_train_frames = masked_seqs_to_frames(x_train, mask_train)
-            y_train_frames = masked_seqs_to_frames(y_train, mask_train)
-            train_data_loaded = True
+        if weight_initialization == 'random':
+            print "Using a random nonnegative dictionary with unit-norm columns for initial DR-NMF dictionary..."
+            # use a random nonnegative dictionary to initialize DR-NMF
+            W_noisy = np.random.rand(input_dim, 2*r)
+            # normalize the columns of the random dictionary
+            W_noisy = W_noisy / np.sqrt(np.sum(W_noisy**2, axis=1, keepdims=True))
+        elif weight_initialization == 'snmf':
+            # load the training data if we need to train SNMF
+            #-------------------
+            # save off the SNMF parameters
+            hash_params_snmf = hashlib.md5(json.dumps(params_snmf, sort_keys=True)).hexdigest()
+            paramsfile_snmf = folder_exp + ("/configs/params_snmf_%s.yaml" % hash_params_snmf)
+            with open(paramsfile_snmf, 'wb') as f:
+                yaml.dump(params_snmf, f)
+            print("paramsfile for SNMF is %s" % paramsfile_snmf)
 
-        # train SNMF build the unfolded SNMF model
+            # get the name of the savefile for SNMF
+            savefile_W_hickle = get_snmf_savefile(params_snmf, path_dicts=path_dicts)
+            if os.path.exists(savefile_W_hickle) and (not flag_recompute):
+                # the savefile exists and we're not recomputing, so assign
+                # dummy values for the training data so we don't take up
+                # a lot of memory
+                y_train_frames = None
+                x_train_frames = None
+                train_data_loaded = False
+            else:
+                # the savefile doesn't exist or we're recomputing, so load up 
+                # the training data tensors
+                x_train, y_train, mask_train = load_data_tensors(params_data, datafile_train, 'train', params_data['maxlen'], downsample=params_data['downsample'])
+
+                # convert the masked sequence tensors to matrices of shape (n_freq, n_frames)
+                x_train_frames = masked_seqs_to_frames(x_train, mask_train)
+                y_train_frames = masked_seqs_to_frames(y_train, mask_train)
+                train_data_loaded = True
+
+            # train SNMF
+            #-------------------
+            
+            # train (or load) the dictionary W_noisy=[W_clean, W_noise]
+            print("Training SNMF model...")
+            W_noisy, H_noisy, obj_snmf_noisy = train_snmf(y_train_frames, x_train_frames, params_snmf, gpuIndex=snmf_gpuIndex, verbose=verbose, flag_recompute=flag_recompute, path_dicts=path_dicts, save_H=save_H)
+            
+            # clear the memory of large training tensors:
+            del x_train_frames
+            del y_train_frames
+
+            print("SNMF cost %e, SNMF div %e" % (float(obj_snmf_noisy['cost'][-1]), float(obj_snmf_noisy['div'][-1])))
+            #print("SNMF mean cost %e, SNMF mean div %e" % (float(obj_snmf_noisy['cost'][-1])/(np.sum(mask_train)*input_dim), float(obj_snmf_noisy['div'][-1])/(np.sum(mask_train)*input_dim)))
+
+        else:
+            ValueError("Unknown weight_initialization of '%s'" % weight_initialization)
+
+        # build the unfolded SNMF model
         #-------------------
         print("")
         print("Building the unfolded SNMF model...")
-        
-        # train (or load) the dictionary W_noisy=[W_clean, W_noise]
-        print("Training SNMF model...")
-        W_noisy, H_noisy, obj_snmf_noisy = train_snmf(y_train_frames, x_train_frames, params_snmf, gpuIndex=snmf_gpuIndex, verbose=verbose, flag_recompute=flag_recompute, path_dicts=path_dicts, save_H=save_H)
-        
-        # clear the memory of large training tensors:
-        del x_train_frames
-        del y_train_frames
-
-        print("SNMF cost %e, SNMF div %e" % (float(obj_snmf_noisy['cost'][-1]), float(obj_snmf_noisy['div'][-1])))
-        #print("SNMF mean cost %e, SNMF mean div %e" % (float(obj_snmf_noisy['cost'][-1])/(np.sum(mask_train)*input_dim), float(obj_snmf_noisy['div'][-1])/(np.sum(mask_train)*input_dim)))
 
         # build the unfolded SNMF model
         params_unfolded_snmf = config['params_unfolded_snmf']
