@@ -4,12 +4,13 @@ DR-NMF is a recurrent neural network constructed from the unfolded iterations of
 
 Read the paper here: https://arxiv.org/abs/1709.07124
 
-[Presentation slides from WASPAA 2017](https://www.dropbox.com/s/mib76xfwepuclwd/waspaa2017_drnmf.pdf?dl=0)
+[Presentation slides from WASPAA 2017 (received best student paper award)](https://www.dropbox.com/s/mib76xfwepuclwd/waspaa2017_drnmf.pdf?dl=0)
 
+[Download pretrained sparse NMF dictionaries and weights for the trained networks here](https://www.dropbox.com/s/u8bsw5orkw2l73s/pretrained_models.zip?dl=1)
 
 ### Instructions:
 
-Uses the [task 2 data from the 2nd CHiME Challenge](http://spandh.dcs.shef.ac.uk/chime_challenge/chime2013/chime2_task2.html), which is available from the [LDC (free for members, $50 for non-members)](https://catalog.ldc.upenn.edu/LDC2017S10).
+Uses the [task 2 data from the 2nd CHiME Challenge](http://spandh.dcs.shef.ac.uk/chime_challenge/chime2013/chime2_task2.html), which is available from the [LDC (free for 2017 members, $50 for non-members)](https://catalog.ldc.upenn.edu/LDC2017S10).
 
 1) Download required toolboxes by running `download_toolboxes.sh`.
 2) Generate taskfiles by replacing the variable `chime2_path` in `create_taskfiles.sh` by your local CHiME2 path and running `create_taskfiles.sh`.
