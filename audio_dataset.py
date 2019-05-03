@@ -424,7 +424,6 @@ class AudioDataset:
 
         if (not os.path.isfile(savefile)) or flag_rescore:
             cmd_matlab = "/usr/local/MATLAB/R2017a/bin/matlab -nosplash -nodesktop -nodisplay -r \"score_audio('%s', '%s', '%s', %d); quit();\"" %(enhanced_taskfile, reference_taskfile, savefile, verbose)
-            #%(enhanced_taskfile, reference_taskfile, savefile, verbose)
             if not verbose:
                 cmd_matlab = cmd_matlab + " > /dev/null"
             print("Running Matlab command %s" % cmd_matlab)
