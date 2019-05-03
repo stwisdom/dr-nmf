@@ -12,7 +12,7 @@ Read the paper here: https://arxiv.org/abs/1709.07124
 
 Uses the [task 2 data from the 2nd CHiME Challenge](http://spandh.dcs.shef.ac.uk/chime_challenge/chime2013/chime2_task2.html), which is available from the [LDC (free for 2017 members, $50 for non-members)](https://catalog.ldc.upenn.edu/LDC2017S10).
 
-1) Set up environment (updated 05-03-19). This code depends on some older versions of packages (see `requirements.txt`). To set up a conda environment, run this command:
+1) Set up environment (updated 05-03-19). This code depends on some older versions of packages (see `requirements.txt`). To set up a conda environment, run these commands:
 ```
 conda create --name drnmf_orig3 cudnn=5.1 gxx_linux-64=5.4.0 python=2.7 theano=0.9.0 numpy=1.11 pygpu=0.6.9
 pip install keras==2.0.4 librosa==0.5.1 joblib==0.11.0 hickle jupyter
