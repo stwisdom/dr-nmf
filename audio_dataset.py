@@ -4,7 +4,7 @@ import h5py
 from pprint import pprint
 import os
 import util
-from util import pad_axis_toN_with_constant 
+from util import pad_axis_toN_with_constant
 import scipy.io as sio
 
 
@@ -18,7 +18,7 @@ def get_mask_value(config):
 
 
 def load_data(config, dataset='train', downsample=1):
-    
+
     if config['transform_x']=='mag':
         transform_x = (lambda x: np.sqrt(x[:x.shape[0]/2,:]**2 + x[x.shape[0]/2:,:]**2))
     elif config['transform_y']=='logmag':
@@ -40,7 +40,7 @@ def load_data(config, dataset='train', downsample=1):
     else:
         transform_y = (lambda y : y)
     mask_value = get_mask_value(config)
-        
+
     if (dataset=='test'):
         D_test=AudioDataset(config['taskfile_x_test'], config['taskfile_y_test'], datafile=config['datafile_test'], params_stft=config['params_stft'], downsample=downsample)
         print "  Loading test data..."
@@ -115,7 +115,7 @@ def add_to_table(f,data,label,filters):
 
 def reshape_and_pad_stacks(x_stack,y_stack,fidx,transform_x=(lambda x: x),transform_y=(lambda y: y),pad_value=0., maxlen=None, verbose=False):
         #convert the concatenated STFTs of shape (2(N/2+1), <total STFT frames>) into
-        #into shape (<total number of wavfiles>, maxseq, 2(N/2+1)). Use a mask to 
+        #into shape (<total number of wavfiles>, maxseq, 2(N/2+1)). Use a mask to
         #keep track of the padding of the arrays:
         maxseq = np.max(fidx[:,1]-fidx[:,0])
         if maxlen is None or (maxlen > maxseq):
@@ -130,7 +130,7 @@ def reshape_and_pad_stacks(x_stack,y_stack,fidx,transform_x=(lambda x: x),transf
                 while t < (fidx[i,1] - fidx[i,0]):
                     n_sequences = n_sequences + 1
                     t = t + maxlen
-        
+
         """
         x_test = pad_value*np.ones((n_sequences, maxlen, d)).astype(x_stack.dtype)
         y_test = pad_value*np.ones((n_sequences, maxlen, d)).astype(y_stack.dtype)
@@ -220,7 +220,7 @@ class AudioDataset:
 
             #Compute the STFTs; input is 'x', output is 'y'. THe outputs of
             #util.compute_STFTs are the concatenated STFTs in an array of
-            #shape (2(N/2+1), <total number of STFT frames>), and the "fidx" 
+            #shape (2(N/2+1), <total number of STFT frames>), and the "fidx"
             #variable is an array of shape (<total number of wavfiles>, 2)
             #that contains the starting and ending indices of the STFT frames
             #for each wavfile. The output dimension of the stack is "2(N/2+1)"
@@ -229,7 +229,7 @@ class AudioDataset:
             print "Computing STFTs..."
             x_stack, x_fidx = util.compute_STFTs(x_wavfiles, params_stft)
             y_stack, y_fidx = util.compute_STFTs(y_wavfiles, params_stft)
-           
+
             fidx_are_the_same = np.allclose(x_fidx, y_fidx)
             inputs_length_gte_outputs_length = all(x_fidx[:,1]>=y_fidx[:,1])
             if not fidx_are_the_same:
@@ -244,7 +244,7 @@ class AudioDataset:
             #save the STFTs to the datafile, if one is specified
             if datafile is not None:
                 print "Saving data to file '%s'..." % datafile
-                
+
                 f = h5py.File(datafile, 'w')
                 f.create_dataset("x_stack", data=x_stack)
                 f.create_dataset("y_stack", data=y_stack)
@@ -255,14 +255,15 @@ class AudioDataset:
                 for key in params_stft:
                     grp_stft.attrs[key] = params_stft[key]
 
-        self.data = f 
+        self.data = f
         self.x_stack = f['x_stack']
         self.y_stack = f['y_stack']
         self.fidx = f['fidx']
         self.x_wavfiles = f['x_wavfiles']
         self.y_wavfiles = f['y_wavfiles']
-    
-    
+        f.close()
+
+
     def reconstruct_x(self, idx, mask=None):
         X_stft = self.x_stack[:,self.fidx[idx,0]:self.fidx[idx,1]]
         if not(mask is None):
@@ -273,7 +274,7 @@ class AudioDataset:
             X_stft = np.expand_dims(X_stft, 2)
         X_stft = X_stft[:X_stft.shape[0]/2,:,:] + np.complex64(1j)*X_stft[X_stft.shape[0]/2:,:,:]
         xr,_=util.istft_mc(X_stft,self.params_stft['hop'],flag_noDiv=1,window=self.params_stft['window'])
-            
+
         return xr
 
 
@@ -287,7 +288,7 @@ class AudioDataset:
             Y_stft = np.expand_dims(Y_stft, 2)
         Y_stft = Y_stft[:Y_stft.shape[0]/2,:,:] + np.complex64(1j)*Y_stft[Y_stft.shape[0]/2:,:,:]
         yr,_=util.istft_mc(Y_stft,self.params_stft['hop'],flag_noDiv=1,window=self.params_stft['window'])
-            
+
         return yr
 
     def reconstruct_audio(self, description, irm=None, mask=None, idx=None, test=False):
@@ -334,7 +335,7 @@ class AudioDataset:
             if not os.path.exists(os.path.dirname(wavfile_enhanced)):
                 os.makedirs(os.path.dirname(wavfile_enhanced))
             util.wavwrite(wavfile_enhanced, 16e3, yest)
-                    
+
         return
 
 
@@ -385,7 +386,7 @@ class AudioDataset:
         """
         Returns true if scores already exist
         """
- 
+
         if savefile is None:
             if snr is None:
                 savefile = datadir + ("scores/scores_%s.mat" %(description))
@@ -393,7 +394,7 @@ class AudioDataset:
                 savefile = datadir + ("scores/scores_%s_%s.mat" %(description,snr))
 
         return os.path.isfile(savefile)
-        
+
 
     def score_audio(self, description, snr=None, savefile=None, verbose=False, datadir="", flag_rescore=False):
         """
@@ -414,13 +415,13 @@ class AudioDataset:
         with open(reference_taskfile, 'w') as f:
             for wavfile in reference_wavfiles:
                 f.write("%s\n" % wavfile)
-        
+
         if savefile is None:
             if snr is None:
                 savefile = datadir + ("scores/scores_%s.mat" %(description))
             else:
                 savefile = datadir + ("scores/scores_%s_%s.mat" %(description,snr))
-        
+
         if (not os.path.isfile(savefile)) or flag_rescore:
             cmd_matlab = "/usr/local/MATLAB/R2017a/bin/matlab -nosplash -nodesktop -nodisplay -r \"score_audio('%s', '%s', '%s', %d); quit();\"" %(enhanced_taskfile, reference_taskfile, savefile, verbose)
             if not verbose:
