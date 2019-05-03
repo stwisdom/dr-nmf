@@ -12,11 +12,16 @@ Read the paper here: https://arxiv.org/abs/1709.07124
 
 Uses the [task 2 data from the 2nd CHiME Challenge](http://spandh.dcs.shef.ac.uk/chime_challenge/chime2013/chime2_task2.html), which is available from the [LDC (free for 2017 members, $50 for non-members)](https://catalog.ldc.upenn.edu/LDC2017S10).
 
-1) Download required toolboxes by running `download_toolboxes.sh`.
-2) Generate taskfiles by replacing the variable `chime2_path` in `create_taskfiles.sh` by your local CHiME2 path and running `create_taskfiles.sh`.
-3) Use `enhance.py` to train, reconstruct, and score audio. Use the `run_waspaa2017.sh` script to replicate results from the WASPAA 2017 paper.
+1) Set up environment (updated 05-03-19). This code depends on some older versions of packages (see [`requirements.txt`](https://github.com/stwisdom/dr-nmf/blob/master/requirements.txt). To set up a conda environment, run these commands:
+```
+conda create --name drnmf_orig3 cudnn=5.1 gxx_linux-64=5.4.0 python=2.7 theano=0.9.0 numpy=1.11 pygpu=0.6.9
+pip install keras==2.0.4 librosa==0.5.1 joblib==0.11.0 hickle jupyter
+```
+2) Download required toolboxes by running [`download_toolboxes.sh`](https://github.com/stwisdom/dr-nmf/blob/master/download_toolboxes.sh).
+3) Generate taskfiles by replacing the variable `chime2_path` in [`create_taskfiles.sh`](https://github.com/stwisdom/dr-nmf/blob/master/create_taskfiles.sh) by your local CHiME2 path and running [`create_taskfiles.sh`](https://github.com/stwisdom/dr-nmf/blob/master/create_taskfiles.sh).
+4) Use [`enhance.py`](https://github.com/stwisdom/dr-nmf/blob/master/enhance.py) to train, reconstruct, and score audio. Use the `run_waspaa2017.sh` script to replicate results from the WASPAA 2017 paper.
 
-Uses code from the following sources, which are automatically downloaded and unzipped by `download_toolboxes.sh`:
+Uses code from the following sources, which are automatically downloaded and unzipped by [`download_toolboxes.sh`](https://github.com/stwisdom/dr-nmf/blob/master/download_toolboxes.sh):
 - sparseNMF by Jonathan Le Roux from http://www.jonathanleroux.org/software/sparseNMF.zip (put Matlab files in "sparseNMF" directory)
 - BSS Eval by Emmanuel Vincent from http://bass-db.gforge.inria.fr/bss_eval/bss_eval.zip (put "bss-eval" directory in "evaluation" directory)
 - Matlab PESQ implementation by Y. Hu and P. Loizou from http://ecs.utdallas.edu/loizou/speech/composite.zip (put "composite" directory in "evaluation" directory)
